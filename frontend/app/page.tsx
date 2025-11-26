@@ -124,17 +124,32 @@ export default function Home() {
   };
 
   const handleDeleteGoal = async (goalId: string) => {
-    if (!confirm("Are you sure you want to delete this goal?")) return;
+    if (!confirm("Are you sure you want to delete this goal? This action cannot be undone.")) return;
 
     try {
-      // Note: Backend doesn't have delete endpoint, but we can remove from local state
+      const response = await fetch(`${API_URL}/goals/${goalId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error("Goal not found");
+        }
+        throw new Error("Failed to delete goal");
+      }
+
+      // Remove from local state after successful deletion
       setAllGoals(allGoals.filter((g) => g.id !== goalId));
       if (result?.id === goalId) {
         setResult(null);
       }
-      setToast({ message: "Goal removed from view", type: "info" });
+      setToast({ message: "✅ Goal deleted successfully!", type: "success" });
+      
+      // Refresh the goals list to ensure sync
+      await loadAllGoals();
     } catch (err) {
-      setToast({ message: "Failed to delete goal", type: "error" });
+      const errorMessage = err instanceof Error ? err.message : "Failed to delete goal";
+      setToast({ message: `❌ ${errorMessage}`, type: "error" });
     }
   };
 
@@ -182,7 +197,7 @@ export default function Home() {
             </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">
               Smart Goal Breaker
-            </h1>
+          </h1>
           </div>
           <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
             Transform your vague goals into actionable steps with AI-powered planning

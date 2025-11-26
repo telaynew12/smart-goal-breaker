@@ -99,3 +99,24 @@ async def get_all_goals(db: Session = Depends(get_db)):
     goals = db.query(Goal).order_by(Goal.created_at.desc()).all()
     return goals
 
+
+@app.delete("/goals/{goal_id}", status_code=204)
+async def delete_goal(goal_id: str, db: Session = Depends(get_db)):
+    """
+    Delete a goal and all its associated tasks
+    """
+    try:
+        goal_uuid = uuid.UUID(goal_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid goal ID format")
+    
+    goal = db.query(Goal).filter(Goal.id == goal_uuid).first()
+    if not goal:
+        raise HTTPException(status_code=404, detail="Goal not found")
+    
+    # Delete the goal (cascade will delete tasks automatically)
+    db.delete(goal)
+    db.commit()
+    
+    return None
+
