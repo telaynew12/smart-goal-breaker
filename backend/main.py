@@ -15,10 +15,11 @@ load_dotenv()
 app = FastAPI(title="Smart Goal Breaker API", version="1.0.0")
 
 # CORS configuration
-cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
+cors_origins_str = os.getenv("CORS_ORIGINS", "http://localhost:3000,https://smart-goal-breaker-29os.vercel.app")
+cors_origins = [origin.strip() for origin in cors_origins_str.split(",")]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=cors_origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
