@@ -47,7 +47,7 @@ interface ToastState {
   type: "success" | "error" | "info";
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://smart-goal-breaker-h0i2.onrender.com";
 
 export default function Home() {
   const [goal, setGoal] = useState("");
